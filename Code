@@ -1,1 +1,962 @@
 
+#Question 1
+# we will use R to run a test of 
+summary(data_NHIS$EMPFT)
+use_varb <- (data_NHIS$EMPFT == "parttime")
+dat_use00 <- subset(data_NHIS,use_varb) 
+summary(data_NHIS$EMPHI)
+summary(data_NHIS$EDUC)
+data_NHIS$yes_work_health <- data_NHIS$EMPHI == "yes workplace offer health insurance"
+
+table(dat_use00$EDUC,dat_use00$yes_work_health)
+prop.test(table(as.numeric(dat_use00$EDUC),as.numeric(dat_use00$yes_work_health)))
+# we will form a hypothesis test on those that have health insurance in the workplace
+# the null hypothesis are there is no difference in proportions from those 
+# with health insurance in the work place based on education 
+# while the alternative is there is a difference of those with health insurance for someone in the
+# workplace. since the p-value (< 0.01366) is less than the level of significance  of 0.05 of
+# we reject the null hypothesis in favor of the alternative hypothesis
+# where we can deduce there is a difference in in the proportions those with
+# education on those with health insurance in a subset of those tha workpartime.
+
+# Question 2 
+
+# a)
+1/(1+(exp(1))^(1.84+(-0.019*30) + (	0.00002*(30)^2) + (	0*1) + (0*0.0082*(30))+(0* -0.00001*(30)^2)))
+# the predicted proabbility for someone that is female is to have job benefits is 
+# 0.2161915.
+
+# b) 
+1/(1+(exp(1))^(1.84+(-0.019*30) + (	0.00002*(30)^2) + (	-0.470*1) + (	0.0082*(30))+(-0.00001*(30)^2)))
+
+
+# the predicted probability for someone that is female is to have job benefits is 
+# 0.258.
+
+# The impact of squared terms makes the model non-linear,because we use the polynomial squared 
+# the function itself changes.
+
+# Question 3
+summary(data_NHIS$REGION)
+summary(data_NHIS)
+summary(data_NHIS$HINOTCOVE)
+summary(data_NHIS$REGION == "South")
+
+data_NHIS$YES_HEALTH_INSURANCE <- data_NHIS$HINOTCOVE == "has health insurance coverage"
+data_NHIS$MALE <- data_NHIS$SEX == "Male"
+summary(data_NHIS$SEX)
+table(data_NHIS$MALE,data_NHIS$YES_HEALTH_INSURANCE)
+prop.test(table(as.numeric(data_NHIS$MALE),as.numeric(data_NHIS$YES_HEALTH_INSURANCE)))
+# we will form a hypothesis test on those that have health insurance.
+# the null hypothesis are there is no difference in proportions from those 
+# with health insurance based on whether someone is a man,
+# while the alternative is there is a difference in insurance if someone is a man.
+#since the p-value (8.69e-07) is less than the level of significance  of 0.05 of
+# we reject the null hypothesis in favor of the alternative hypothesis
+# where we can deduce there is a difference in in the proportions those with
+# health insurance based on sex.
+# Additionally the confidence interval of 95% is -0.018800909 -0.008003551
+#indicating the interval to cover the true population proportion of those
+# with thinking disabilities 95% of the time.
+
+summary(data_NHIS$YES_HEALTH_INSURANCE)
+# we will explore the likelihood that someone has health insurances
+# The subgroup will be people from the south.
+# This group is interesting because we can look at the health 
+# differences between those in the south bas on having health insurance.
+use_varb <- (data_NHIS$REGION == "South")
+dat_use1 <- subset(data_NHIS,use_varb) 
+summary(dat_use1$YES_HEALTH_INSURANCE)
+
+summary(data_NHIS$HINOTCOVE)
+summary(data_NHIS$MARST)
+summary(data_NHIS$RACEA)
+model_ols<- lm(YES_HEALTH_INSURANCE ~ MARST + SEX + RACEA, data = dat_use1)
+summary(model_ols)
+# In the regression, the Null Hypothesis is that there is no significant relationship between 
+# the dependent and independent variables, while the alternative hypothesis states there 
+# is a significant relationship. As for the t-stats, p-values and confidence intervals of all the 
+# independent variables except RACEAunknown, RACEAOther, RACEAAsian, RACEABlack, SEXRefused,
+# SEXFemale and MARSTMarried, all have have t-stats are far away from 0 and the p-values are less than
+# the level of significance 0.05, so we deem these independent variables statistically significant.
+# So we reject the null hypothesis that there is no relationship in favor of the alternative
+# hypothesis that there is a significant relationship.
+# However, for the variables RACEAunknown, RACEAOther, RACEAAsian, RACEABlack, SEXRefused,
+# SEXFemale and MARSTMarried, were not as significant 
+# Thus, we fail to reject the null hypothesis for those specific variables and conclude there is 
+# no significant relationship between dependent and these specific independent variables.
+# to test for joint significance, we check the f test, the null is there is no joint 
+# significance while the alternative is there is there is joint significance. we find
+# since the pvalue ( < 2.2e-16) is less than a level of significance of 0.05, we reject the
+# null in favor of the alternative that there is joint significance.
+to_be_predicted <- data.frame(MARST = "Married spouse not there", SEX = "Male", RACEA = "Aleut Alaskan")
+to_be_predicted$yhat <- predict(model_ols, newdata = to_be_predicted)
+summary(to_be_predicted$yhat)
+#  The predicted probability that a male is married, aleut alaskan to have health
+# insurance is 71%.
+
+# now we will use a logit model
+model_logit<- glm(YES_HEALTH_INSURANCE ~ MARST + SEX + RACEA, family = binomial, data = dat_use1)
+summary(model_logit)
+# the additional information we can retain from the logit model is man of the significant
+# coefficients are negative, indicating there they are not as likely to have health insurance.
+# for the variables MARSTMarried spouse not there, MARSTWidowed, MARSTDivorced, MARSTSeparated, 
+# MARSTnever married, MARSTunknown, RACEAAleut Alaskan, RACEAAmerican Indian, RACEArefused
+# RACEAnot ascertained they are significant at a level of significance of 0.05. THus we
+# deem there is a relstionship between these depdendent and independent variables.
+
+to_be_predicted2 <- data.frame(MARST = "Married spouse not there", SEX = "Male", RACEA = "Aleut Alaskan")
+to_be_predicted2$yhat <- predict(model_logit, newdata = to_be_predicted2)
+summary(to_be_predicted2$yhat)
+# The note the prediceted value for a male is married, aleut alaskan to have health
+# insurance is 72.92%, which is slightly higher than the predicted probability for the ols 
+# model.
+
+
+# lets run an ols model using the same variables to create a confusion matrix.
+set.seed(1)
+index<-sample(x=2,size=nrow(dat_use1),replace=TRUE,prob=c(0.7,0.3))
+train<-dat_use1[index==1,]
+test<-dat_use1[index==2,]
+trainmodel<-lm(YES_HEALTH_INSURANCE ~ MARST + SEX + RACEA, data = dat_use1)
+prob<-predict(object=trainmodel,newdata=test,type="response")
+pred<-cbind(test,prob)
+pred<-transform(pred,predict=ifelse(prob<=0.5,0,1))
+ta<-table(pred$YES_HEALTH_INSURANCE,pred$predict)
+ta
+sum_diag<-sum(diag(ta))
+sum<-sum(ta)
+sum_diag/sum
+# The confusion matrix type I and type II errors, the amount of these errors are
+# The train model predicts correctly with a terrible accuracy of around 10 %, 
+# additionally, only half of the confusion matrix show, and we see there are a large amount of type II
+# errors, thus this a terrile fix for our model.
+
+
+# we will tryin to produce a similar confuison matrix with a logit model
+set.seed(1)
+index<-sample(x=2,size=nrow(dat_use1),replace=TRUE,prob=c(0.7,0.3))
+train<-dat_use1[index==1,]
+test<-dat_use1[index==2,]
+trainmodel<-glm(YES_HEALTH_INSURANCE ~ MARST + SEX + RACEA, family = binomial, data = dat_use1)
+prob<-predict(object=trainmodel,newdata=test,type="response")
+pred<-cbind(test,prob)
+pred<-transform(pred,predict=ifelse(prob<=0.5,0,1))
+ta<-table(pred$YES_HEALTH_INSURANCE,pred$predict)
+ta
+sum_diag<-sum(diag(ta))
+sum<-sum(ta)
+sum_diag/sum
+# in the model for logit we get a much better confusion matrix, here we see there is a 
+# 89% accuracy and that there are less type II errors (2) than type I errors (409). 
+# thus, the confusion matrix for a logit model is much better than the confusion matrix for a 
+# ols model.
+
+
+
+table1 <- table(data_NHIS$RACEA,data_NHIS$YES_HEALTH_INSURANCE)
+table1
+plot(table1, main="Health Insurance By Race",
+     xlab="Race",
+     ylab="Health Insurance", 
+     col = c("grey", "blue"))
+# Proportions of people that are vaccinated from table.
+x=c(table1[1,2]/(table1[1,1]+table1[1,2]),
+    table1[2,2]/(table1[2,1]+table1[2,2]),
+    table1[3,2]/(table1[3,1]+table1[3,2]),
+    table1[4,2]/(table1[4,1]+table1[4,2]),
+    table1[5,2]/(table1[5,1]+table1[5,2]),
+    table1[6,2]/(table1[6,1]+table1[6,2]),
+    table1[7,2]/(table1[7,1]+table1[7,2]), 
+    table1[8,2]/(table1[8,1]+table1[8,2]),
+    table1[9,2]/(table1[9,1]+table1[9,2]) )
+
+x
+insurance_prop_table<-data.frame(row.names=row.names(table1), Prop_Insurance=x)
+insurance_prop_table
+require(ggplot2)
+ggplot(data=insurance_prop_table, aes(y=row.names(insurance_prop_table), x=Prop_Insurance, fill=row.names(insurance_prop_table))) + 
+  geom_bar(stat="identity") + scale_fill_brewer(palette = "Dark2") +ggtitle("Proportion Of Vaccinated by Education") + theme(legend.position = "none") + labs( x="Health Insurance Proportion", y="Races")
+
+# We created tables and bar graphs demonstrating the proportion of  people with health insurance
+# by race. We note the Asian and other race seem to have the highest proportion of people with health
+# insurance, the more larger the  proportion of those vaccinated. 
+
+
+Household_Pulse_data$vaxx <- (Household_Pulse_data$RECVDVACC == "yes got vaxx")
+use_varb0 <- (Household_Pulse_data$REGION == "South")
+dat_use0 <- subset(Household_Pulse_data,use_varb0) 
+model_logit1 <- glm(YES_HEALTH_INSURANCE ~ MARST + SEX + RACEA, family = binomial, data = dat_use1)
+summary(model_logit1)
+summary(model_logit1$fitted)
+summary(dat_use1$YES_HEALTH_INSURANCE)
+pred_model_logit1 <- (model_logit1$fitted > 0.5)
+table(pred_model_logit1, dat_use1$YES_HEALTH_INSURANCE)
+frac_correct_l1a <- mean(as.numeric(as.numeric(pred_model_logit1) == dat_use1$YES_HEALTH_INSURANCE))
+pred_model_logit1b <- (model_logit1$fitted > mean(dat_use1$YES_HEALTH_INSURANCE))
+table(pred_model_logit1b, dat_use1$YES_HEALTH_INSURANCE)
+frac_correct_l1b <- mean(as.numeric(as.numeric(pred_model_logit1b) == dat_use1$YES_HEALTH_INSURANCE))
+# examine how different cut-off values change predictive accuracy
+frac_correct_try <- rep(0,140)
+for (indx in 1:140) {
+  pred_model_indx <- (model_logit1$fitted > (indx/200) )
+  frac_correct_try[indx] <- mean(as.numeric(as.numeric(pred_model_indx) == dat_use1$YES_HEALTH_INSURANCE))
+}
+plot((seq(140)/200),frac_correct_try)
+# This model is predicting the accuracy, kind of like a version of r squared, but in this case it
+# uses  the x axis as confidence, y axis as accuracy where we note the best around an
+# accuracy of 0.894 with a confidence of 0.5. 
+
+
+require(pROC)
+roc_curve<-roc(test$YES_HEALTH_INSURANCE,prob)
+x<-1-roc_curve$specificities
+y<-roc_curve$sensitivities
+plot(x=x,y=y,xlim=c(0,1),ylim=c(0,1),xlab="1-specificity",
+     ylab="sensitivity",main="ROC Curve",type="l",lwd=2)
+abline(a=0,b=1,col="grey")
+auc<-roc_curve$auc
+text(0.5,0.4,paste("AUC",round(auc,digits=2)),col="blue")
+# this is another model to note the accuracy of the previous model, where the dark curved line
+# is above the diagonal straight line, thus indicating the accuracy is somewhat high, where
+# we can see when we print the text on the plot we have an accuracy of 0.67.
+
+
+# Firstly we create the variable for those that got vaccinate, we will not be adding NA's.
+MARST + SEX + RACEA
+# we still use the subset of people in the south
+
+d_sex <- data.frame(model.matrix(~ dat_use1$SEX))
+d_race <- data.frame(model.matrix(~ dat_use1$RACEA))
+summary(dat_use1$YES_HEALTH_INSURANCE)
+d_INSURANCE <- data.frame(model.matrix(~ dat_use1$YES_HEALTH_INSURANCE))
+summary(d_INSURANCE)
+summary(d_race)
+summary(d_sex)
+dat_for_analysis_sub <- data.frame(
+  d_INSURANCE[,2],
+  d_sex[!is.na(dat_use1$YES_HEALTH_INSURANCE),2:3]) 
+summary(dat_for_analysis_sub)
+names(dat_for_analysis_sub) <- sub("dat_use1.","",names(dat_for_analysis_sub))
+names(dat_for_analysis_sub) <- sub("...2.","",names(dat_for_analysis_sub))
+summary(dat_for_analysis_sub)
+
+require("standardize")
+set.seed(1)
+NN <- length(dat_for_analysis_sub$d_INSURANCE)
+summary(NN)
+restrict_1 <- (runif(NN) < 0.1) 
+summary(restrict_1)
+dat_train <- subset(dat_for_analysis_sub, restrict_1)
+dat_test <- subset(dat_for_analysis_sub, !restrict_1)
+summary(dat_train)
+sobj <- standardize(d_INSURANCE ~  SEXFemale 
+                    , dat_train, family = binomial)
+s_dat_test <- predict(sobj, dat_test)
+#Linear
+model_lpm1 <- lm(sobj$formula, data = sobj$data)
+summary(model_lpm1)
+pred_vals_lpm <- predict(model_lpm1, s_dat_test)
+pred_model_lpm1 <- (pred_vals_lpm > mean(pred_vals_lpm))
+table(pred = pred_model_lpm1, true = dat_test$d_INSURANCE)
+# here we have the confusion matrix for the logit regression
+# we see the type I errors are 5662, while the type II errors are
+#596. 
+# logit 
+model_logit1 <- glm(sobj$formula, family = binomial, data = sobj$data)
+summary(model_logit1)
+pred_vals <- predict(model_logit1, s_dat_test, type = "response")
+pred_model_logit1 <- (pred_vals > 0.5)
+table(pred = pred_model_logit1, true = dat_test$d_INSURANCE)
+# unfortunately in this model half of the confusion matrix is gone, 
+# but we can still interpret the type I errors. 
+# the linear mode is a better predictor than the logit model since there
+# are less errors.
+
+require('randomForest')
+set.seed(1)
+model_randFor <- randomForest(as.factor(d_INSURANCE) ~ ., data = sobj$data, importance=TRUE, proximity=TRUE)
+print(model_randFor)
+round(importance(model_randFor),2)
+varImpPlot(model_randFor)
+# look at confusion matrix for this too
+pred_model1 <- predict(model_randFor,  s_dat_test)
+table(pred = pred_model1, true = dat_test$d_INSURANCE)
+
+# we obtian the confusion matrix for the random forest and note there
+# are 1226 type II errors.
+
+
+require(spikeslab)
+set.seed(1)
+model1_spikeslab <- spikeslab(sobj$formula, data = sobj$data)
+summary(model1_spikeslab)
+print(model1_spikeslab)
+plot(model1_spikeslab)
+# the spikes lab plot is show the predictor of female to ahve health insurance, 
+# where we see to coefficient on the plot for female that have health insurance
+# and those on the bottom for females that do not have health insurace.
+
+
+require(e1071)
+# tuned_parameters <- tune.svm(as.factor(vaxx) ~ ., data = sobj$data, gamma = 10^(-3:0), cost = 10^(-2:2)) 
+# summary(tuned_parameters)
+# figure best parameters and input into next
+svm.model <- svm(as.factor(d_INSURANCE) ~ ., data = sobj$data, cost = 1, gamma = 0.1)
+svm.pred <- predict(svm.model, s_dat_test)
+table(pred = svm.pred, true = dat_test$d_INSURANCE)
+# we obtain the confusion matrix with the e1071, where we find that there are
+# are 1226 type two errors.
+
+
+# All of the work on this exam is my own, answered honestly as rules state.
+# Name: Nicholas Alonso
+#  Date: 11/18/2021
+
+
+
+Console Ouput
+> #Question 1
+> # we will use R to run a test of 
+> summary(data_NHIS$EMPFT)
+      NIU  parttime  fulltime   refused        NA dont know 
+    19954      2752     14473        11       157        11 
+> use_varb <- (data_NHIS$EMPFT == "parttime")
+> dat_use00 <- subset(data_NHIS,use_varb) 
+> summary(data_NHIS$EMPHI)
+                                        NIU no workplace did not offer health insurance 
+                                      19978                                        4886 
+       yes workplace offer health insurance                                     refused 
+                                      12404                                          19 
+                                         NA                                   dont know 
+                                         24                                          47 
+> summary(data_NHIS$EDUC)
+                     NIU                no school             less than hs    12th grade no diploma 
+                    5790                       59                     1981                      422 
+              HS diploma                      GED             some college assoc deg in tech or occ 
+                    6823                      663                     4971                     1219 
+      assoc deg academic                bachelors                  masters      professional degree 
+                    2916                     7406                     3723                      518 
+                doctoral                  refused                dont know 
+                     718                       45                      104 
+> data_NHIS$yes_work_health <- data_NHIS$EMPHI == "yes workplace offer health insurance"
+> table(dat_use00$EDUC,dat_use00$yes_work_health)
+                          
+                           FALSE TRUE
+  NIU                          0    0
+  no school                    1    2
+  less than hs               133   29
+  12th grade no diploma       28    7
+  HS diploma                 438  150
+  GED                         39   22
+  some college               392  141
+  assoc deg in tech or occ    74   29
+  assoc deg academic         175   84
+  bachelors                  426  168
+  masters                    201   85
+  professional degree         27   18
+  doctoral                    46   27
+  refused                      1    0
+  dont know                    5    4
+> prop.test(table(as.numeric(dat_use00$EDUC),as.numeric(dat_use00$yes_work_health)))
+
+	14-sample test for equality of proportions without continuity correction
+
+data:  table(as.numeric(dat_use00$EDUC), as.numeric(dat_use00$yes_work_health))
+X-squared = 26.702, df = 13, p-value = 0.01366
+alternative hypothesis: two.sided
+sample estimates:
+   prop 1    prop 2    prop 3    prop 4    prop 5    prop 6    prop 7    prop 8    prop 9   prop 10   prop 11 
+0.3333333 0.8209877 0.8000000 0.7448980 0.6393443 0.7354597 0.7184466 0.6756757 0.7171717 0.7027972 0.6000000 
+  prop 12   prop 13   prop 14 
+0.6301370 1.0000000 0.5555556 
+
+> # a)
+> 1/(1+(exp(1))^(1.84+(-0.019*30) + (	0.00002*(30)^2) + (	0*1) + (0*0.0082*(30))+(0* -0.00001*(30)^2)))
+[1] 0.2161915
+> # b) 
+> 1/(1+(exp(1))^(1.84+(-0.019*30) + (	0.00002*(30)^2) + (	-0.470*1) + (	0.0082*(30))+(-0.00001*(30)^2)))
+[1] 0.2582661
+> # Question 3
+> summary(data_NHIS$REGION)
+Northeast   Midwest     South      West 
+     6604      8393     12929      9432 
+> summary(data_NHIS)
+Error: `summary.haven_labelled()` not implemented.
+Run `rlang::last_error()` to see where the error occurred.
+> summary(data_NHIS$HINOTCOVE)
+has health insurance coverage  no health insurance coverage                     dont know 
+                        34595                          2682                            81 
+> summary(data_NHIS$HINOTCOVE)
+has health insurance coverage  no health insurance coverage                     dont know 
+                        34595                          2682                            81 
+> summary(data_NHIS$REGION == "South")
+   Mode   FALSE    TRUE 
+logical   24429   12929 
+> data_NHIS$YES_HEALTH_INSURANCE <- data_NHIS$HINOTCOVE == "has health insurance coverage"
+> data_NHIS$MALE <- data_NHIS$SEX == "Male"
+> summary(data_NHIS$SEX)
+     Male    Female   Refused dont know 
+    17487     19865         5         1 
+> table(data_NHIS$MALE,data_NHIS$YES_HEALTH_INSURANCE)
+       
+        FALSE  TRUE
+  FALSE  1345 18526
+  TRUE   1418 16069
+> prop.test(table(as.numeric(data_NHIS$MALE),as.numeric(data_NHIS$YES_HEALTH_INSURANCE)))
+
+	2-sample test for equality of proportions with continuity correction
+
+data:  table(as.numeric(data_NHIS$MALE), as.numeric(data_NHIS$YES_HEALTH_INSURANCE))
+X-squared = 24.198, df = 1, p-value = 8.69e-07
+alternative hypothesis: two.sided
+95 percent confidence interval:
+ -0.018800909 -0.008003551
+sample estimates:
+    prop 1     prop 2 
+0.06768658 0.08108881 
+
+> summary(data_NHIS$YES_HEALTH_INSURANCE)
+   Mode   FALSE    TRUE 
+logical    2763   34595 
+> # we will explore the likelihood that someone has health insurances
+> # The subgroup will be people from the south.
+> # This group is interesting because we can look at the health 
+> # differences between those in the south bas on having health insurance.
+> use_varb <- (data_NHIS$REGION == "South")
+> dat_use1 <- subset(data_NHIS,use_varb) 
+> summary(dat_use1$YES_HEALTH_INSURANCE)
+   Mode   FALSE    TRUE 
+logical    1372   11557 
+
+
+> summary(data_NHIS$HINOTCOVE)
+has health insurance coverage  no health insurance coverage                     dont know 
+                        34595                          2682                            81 
+> summary(data_NHIS$MARST)
+                     NIU                  Married Married spouse not there        Married spouse NA 
+                    5790                    13996                      701                        4 
+                 Widowed                 Divorced                Separated            never married 
+                    3238                     4899                      487                     7191 
+                 unknown 
+                    1052 
+> summary(data_NHIS$RACEA)
+          white           Black   Aleut Alaskan American Indian           Asian           Other         refused 
+          28047            3916             287             378            2090             679              20 
+not ascertained         unknown 
+           1928              13 
+> model_ols<- lm(YES_HEALTH_INSURANCE ~ MARST + SEX + RACEA, data = dat_use1)
+> summary(model_ols)
+
+Call:
+lm(formula = YES_HEALTH_INSURANCE ~ MARST + SEX + RACEA, data = dat_use1)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.98197  0.06024  0.07090  0.11494  0.46768 
+
+Coefficients:
+                               Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                    0.935528   0.007506 124.637  < 2e-16 ***
+MARSTMarried                  -0.006741   0.008088  -0.833 0.404660    
+MARSTMarried spouse not there -0.075889   0.020157  -3.765 0.000167 ***
+MARSTWidowed                   0.033678   0.010976   3.068 0.002157 ** 
+MARSTDivorced                 -0.050465   0.009829  -5.134 2.87e-07 ***
+MARSTSeparated                -0.159743   0.022332  -7.153 8.95e-13 ***
+MARSTnever married            -0.126385   0.009178 -13.770  < 2e-16 ***
+MARSTunknown                  -0.075756   0.016267  -4.657 3.24e-06 ***
+SEXFemale                      0.003521   0.005388   0.653 0.513449    
+SEXRefused                     0.127664   0.212636   0.600 0.548258    
+RACEABlack                     0.009242   0.007066   1.308 0.190946    
+RACEAAleut Alaskan            -0.149651   0.029532  -5.067 4.09e-07 ***
+RACEAAmerican Indian          -0.061802   0.025196  -2.453 0.014184 *  
+RACEAAsian                    -0.009950   0.014442  -0.689 0.490883    
+RACEAOther                     0.010970   0.023828   0.460 0.645252    
+RACEArefused                  -0.280348   0.106373  -2.636 0.008411 ** 
+RACEAnot ascertained          -0.202158   0.014116 -14.321  < 2e-16 ***
+RACEAunknown                  -0.077049   0.122949  -0.627 0.530886    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3006 on 12911 degrees of freedom
+Multiple R-squared:  0.04871,	Adjusted R-squared:  0.04745 
+F-statistic: 38.88 on 17 and 12911 DF,  p-value: < 2.2e-16
+
+> # So we reject the null hypothesis that there is no relationship in favor of the alternative
+> # hypothesis that there is a significant relationship.
+> # However, for the variables RACEAunknown, RACEAOther, RACEAAsian, RACEABlack, SEXRefused,
+> # SEXFemale and MARSTMarried, were not as significant 
+> # Thus, we fail to reject the null hypothesis for those specific variables and conclude there is 
+> # no significant relationship between dependent and these specific independent variables.
+> # to test for joint significance, we check the f test, the null is there is no joint 
+> # significance while the alternative is there is there is joint significance. we find
+> # since the pvalue ( < 2.2e-16) is less than a level of significance of 0.05, we reject the
+> # null in favor of the alternative that there is joint significance.
+> to_be_predicted <- data.frame(MARST = "Married spouse not there", SEX = "Male", RACEA = "Aleut Alaskan")
+> to_be_predicted$yhat <- predict(model_ols, newdata = to_be_predicted)
+> summary(to_be_predicted$yhat)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   0.71    0.71    0.71    0.71    0.71    0.71 
+> # now we will use a logit model
+> model_logit<- glm(YES_HEALTH_INSURANCE ~ MARST + SEX + RACEA, family = binomial, data = dat_use1)
+> summary(model_logit)
+
+Call:
+glm(formula = YES_HEALTH_INSURANCE ~ MARST + SEX + RACEA, family = binomial, 
+    data = dat_use1)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.6867   0.3638   0.3836   0.4914   1.3099  
+
+Coefficients:
+                               Estimate Std. Error z value Pr(>|z|)    
+(Intercept)                     2.64438    0.09384  28.181  < 2e-16 ***
+MARSTMarried                   -0.08662    0.10247  -0.845   0.3980    
+MARSTMarried spouse not there  -0.81186    0.20015  -4.056 4.99e-05 ***
+MARSTWidowed                    0.81502    0.18544   4.395 1.11e-05 ***
+MARSTDivorced                  -0.59126    0.11356  -5.207 1.92e-07 ***
+MARSTSeparated                 -1.35351    0.19061  -7.101 1.24e-12 ***
+MARSTnever married             -1.18266    0.10119 -11.687  < 2e-16 ***
+MARSTunknown                   -0.79952    0.16371  -4.884 1.04e-06 ***
+SEXFemale                       0.03776    0.05926   0.637   0.5239    
+SEXRefused                      9.62150  135.36390   0.071   0.9433    
+RACEABlack                      0.08443    0.07828   1.079   0.2808    
+RACEAAleut Alaskan             -1.10330    0.23206  -4.754 1.99e-06 ***
+RACEAAmerican Indian           -0.58869    0.23549  -2.500   0.0124 *  
+RACEAAsian                     -0.10969    0.15666  -0.700   0.4838    
+RACEAOther                      0.13994    0.28628   0.489   0.6250    
+RACEArefused                   -1.80572    0.74836  -2.413   0.0158 *  
+RACEAnot ascertained           -1.40669    0.10909 -12.895  < 2e-16 ***
+RACEAunknown                   -0.71656    1.11003  -0.646   0.5186    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 8748.3  on 12928  degrees of freedom
+Residual deviance: 8193.8  on 12911  degrees of freedom
+AIC: 8229.8
+
+Number of Fisher Scoring iterations: 10
+
+> to_be_predicted2 <- data.frame(MARST = "Married spouse not there", SEX = "Male", RACEA = "Aleut Alaskan")
+> to_be_predicted2$yhat <- predict(model_logit, newdata = to_be_predicted2)
+> summary(to_be_predicted2$yhat)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.7292  0.7292  0.7292  0.7292  0.7292  0.7292 
+ > # lets run an ols model using the same variables to create a confusion matrix.
+> set.seed(1)
+> index<-sample(x=2,size=nrow(dat_use1),replace=TRUE,prob=c(0.7,0.3))
+> train<-dat_use1[index==1,]
+> test<-dat_use1[index==2,]
+> trainmodel<-lm(YES_HEALTH_INSURANCE ~ MARST + SEX + RACEA, data = dat_use1)
+> prob<-predict(object=trainmodel,newdata=test,type="response")
+> pred<-cbind(test,prob)
+> pred<-transform(pred,predict=ifelse(prob<=0.5,0,1))
+> ta<-table(pred$YES_HEALTH_INSURANCE,pred$predict)
+> ta
+       
+           1
+  FALSE  415
+  TRUE  3498
+> sum_diag<-sum(diag(ta))
+> sum<-sum(ta)
+> sum_diag/sum
+[1] 0.1060567
+> # we will tryin to produce a similar confuison matrix with a logit model
+> set.seed(1)
+> index<-sample(x=2,size=nrow(dat_use1),replace=TRUE,prob=c(0.7,0.3))
+> train<-dat_use1[index==1,]
+> test<-dat_use1[index==2,]
+> trainmodel<-glm(YES_HEALTH_INSURANCE ~ MARST + SEX + RACEA, family = binomial, data = dat_use1)
+> prob<-predict(object=trainmodel,newdata=test,type="response")
+> pred<-cbind(test,prob)
+> pred<-transform(pred,predict=ifelse(prob<=0.5,0,1))
+> ta<-table(pred$YES_HEALTH_INSURANCE,pred$predict)
+> ta
+       
+           0    1
+  FALSE    6  409
+  TRUE     2 3496
+> sum_diag<-sum(diag(ta))
+> sum<-sum(ta)
+> sum_diag/sum
+[1] 0.8949655
+> table1 <- table(data_NHIS$RACEA,data_NHIS$YES_HEALTH_INSURANCE)
+> table1
+                 
+                  FALSE  TRUE
+  white            1730 26317
+  Black             370  3546
+  Aleut Alaskan      57   230
+  American Indian    52   326
+  Asian             116  1974
+  Other              37   642
+  refused             4    16
+  not ascertained   394  1534
+  unknown             3    10
+> plot(table1, main="Health Insurance By Race",
++      xlab="Race",
++      ylab="Health Insurance", 
++      col = c("grey", "blue"))
+> # Proportions of people that are vaccinated from table.
+> x=c(table1[1,2]/(table1[1,1]+table1[1,2]),
++     table1[2,2]/(table1[2,1]+table1[2,2]),
++     table1[3,2]/(table1[3,1]+table1[3,2]),
++     table1[4,2]/(table1[4,1]+table1[4,2]),
++     table1[5,2]/(table1[5,1]+table1[5,2]),
++     table1[6,2]/(table1[6,1]+table1[6,2]),
++     table1[7,2]/(table1[7,1]+table1[7,2]), 
++     table1[8,2]/(table1[8,1]+table1[8,2]),
++     table1[9,2]/(table1[9,1]+table1[9,2]) )
+> x
+[1] 0.9383178 0.9055158 0.8013937 0.8624339 0.9444976 0.9455081 0.8000000 0.7956432 0.7692308
+> insurance_prop_table<-data.frame(row.names=row.names(table1), Prop_Insurance=x)
+> insurance_prop_table
+                Prop_Insurance
+white                0.9383178
+Black                0.9055158
+Aleut Alaskan        0.8013937
+American Indian      0.8624339
+Asian                0.9444976
+Other                0.9455081
+refused              0.8000000
+not ascertained      0.7956432
+unknown              0.7692308
+> require(ggplot2)
+> ggplot(data=insurance_prop_table, aes(y=row.names(insurance_prop_table), x=Prop_Insurance, fill=row.names(insurance_prop_table))) + 
++   geom_bar(stat="identity") + scale_fill_brewer(palette = "Dark2") +ggtitle("Proportion Of Vaccinated by Education") + theme(legend.position = "none") + labs( x="Health Insurance Proportion", y="Races")
+
+> model_logit1 <- glm(YES_HEALTH_INSURANCE ~ MARST + SEX + RACEA, family = binomial, data = dat_use1)
+> summary(model_logit1)
+
+Call:
+glm(formula = YES_HEALTH_INSURANCE ~ MARST + SEX + RACEA, family = binomial, 
+    data = dat_use1)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.6867   0.3638   0.3836   0.4914   1.3099  
+
+Coefficients:
+                               Estimate Std. Error z value Pr(>|z|)    
+(Intercept)                     2.64438    0.09384  28.181  < 2e-16 ***
+MARSTMarried                   -0.08662    0.10247  -0.845   0.3980    
+MARSTMarried spouse not there  -0.81186    0.20015  -4.056 4.99e-05 ***
+MARSTWidowed                    0.81502    0.18544   4.395 1.11e-05 ***
+MARSTDivorced                  -0.59126    0.11356  -5.207 1.92e-07 ***
+MARSTSeparated                 -1.35351    0.19061  -7.101 1.24e-12 ***
+MARSTnever married             -1.18266    0.10119 -11.687  < 2e-16 ***
+MARSTunknown                   -0.79952    0.16371  -4.884 1.04e-06 ***
+SEXFemale                       0.03776    0.05926   0.637   0.5239    
+SEXRefused                      9.62150  135.36390   0.071   0.9433    
+RACEABlack                      0.08443    0.07828   1.079   0.2808    
+RACEAAleut Alaskan             -1.10330    0.23206  -4.754 1.99e-06 ***
+RACEAAmerican Indian           -0.58869    0.23549  -2.500   0.0124 *  
+RACEAAsian                     -0.10969    0.15666  -0.700   0.4838    
+RACEAOther                      0.13994    0.28628   0.489   0.6250    
+RACEArefused                   -1.80572    0.74836  -2.413   0.0158 *  
+RACEAnot ascertained           -1.40669    0.10909 -12.895  < 2e-16 ***
+RACEAunknown                   -0.71656    1.11003  -0.646   0.5186    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 8748.3  on 12928  degrees of freedom
+Residual deviance: 8193.8  on 12911  degrees of freedom
+AIC: 8229.8
+
+Number of Fisher Scoring iterations: 10
+
+> summary(model_logit1$fitted)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.4240  0.8635  0.9281  0.8939  0.9337  1.0000 
+> summary(dat_use1$YES_HEALTH_INSURANCE)
+   Mode   FALSE    TRUE 
+logical    1372   11557 
+> pred_model_logit1 <- (model_logit1$fitted > 0.5)
+> table(pred_model_logit1, dat_use1$YES_HEALTH_INSURANCE)
+                 
+pred_model_logit1 FALSE  TRUE
+            FALSE    13     7
+            TRUE   1359 11550
+> frac_correct_l1a <- mean(as.numeric(as.numeric(pred_model_logit1) == dat_use1$YES_HEALTH_INSURANCE))
+> pred_model_logit1b <- (model_logit1$fitted > mean(dat_use1$YES_HEALTH_INSURANCE))
+> table(pred_model_logit1b, dat_use1$YES_HEALTH_INSURANCE)
+                  
+pred_model_logit1b FALSE TRUE
+             FALSE   879 4134
+             TRUE    493 7423
+> frac_correct_l1b <- mean(as.numeric(as.numeric(pred_model_logit1b) == dat_use1$YES_HEALTH_INSURANCE))
+> # examine how different cut-off values change predictive accuracy
+> frac_correct_try <- rep(0,140)
+> for (indx in 1:140) {
++   pred_model_indx <- (model_logit1$fitted > (indx/200) )
++   frac_correct_try[indx] <- mean(as.numeric(as.numeric(pred_model_indx) == dat_use1$YES_HEALTH_INSURANCE))
++ }
+> plot((seq(140)/200),frac_correct_try)
+> require(pROC)
+> roc_curve<-roc(test$YES_HEALTH_INSURANCE,prob)
+Setting levels: control = FALSE, case = TRUE
+Setting direction: controls < cases
+> x<-1-roc_curve$specificities
+> y<-roc_curve$sensitivities
+> plot(x=x,y=y,xlim=c(0,1),ylim=c(0,1),xlab="1-specificity",
++      ylab="sensitivity",main="ROC Curve",type="l",lwd=2)
+> abline(a=0,b=1,col="grey")
+> auc<-roc_curve$auc
+> text(0.5,0.4,paste("AUC",round(auc,digits=2)),col="blue")
+> # Firstly we create the variable for those that got vaccinate, we will not be adding NA's.
+> MARST + SEX + RACEA
+Error: object 'MARST' not found
+> d_sex <- data.frame(model.matrix(~ dat_use1$SEX))
+> d_race <- data.frame(model.matrix(~ dat_use1$RACEA))
+
+
+> d_sex <- data.frame(model.matrix(~ dat_use1$SEX))
+> d_race <- data.frame(model.matrix(~ dat_use1$RACEA))
+> summary(dat_use1$YES_HEALTH_INSURANCE)
+   Mode   FALSE    TRUE 
+logical    1372   11557 
+> d_INSURANCE <- data.frame(model.matrix(~ dat_use1$YES_HEALTH_INSURANCE))
+> summary(d_INSURANCE)
+  X.Intercept. dat_use1.YES_HEALTH_INSURANCETRUE
+ Min.   :1     Min.   :0.0000                   
+ 1st Qu.:1     1st Qu.:1.0000                   
+ Median :1     Median :1.0000                   
+ Mean   :1     Mean   :0.8939                   
+ 3rd Qu.:1     3rd Qu.:1.0000                   
+ Max.   :1     Max.   :1.0000                   
+> summary(d_race)
+  X.Intercept. dat_use1.RACEABlack dat_use1.RACEAAleut.Alaskan dat_use1.RACEAAmerican.Indian dat_use1.RACEAAsian
+ Min.   :1     Min.   :0.0000      Min.   :0.000000            Min.   :0.00000               Min.   :0.00000    
+ 1st Qu.:1     1st Qu.:0.0000      1st Qu.:0.000000            1st Qu.:0.00000               1st Qu.:0.00000    
+ Median :1     Median :0.0000      Median :0.000000            Median :0.00000               Median :0.00000    
+ Mean   :1     Mean   :0.1839      Mean   :0.008121            Mean   :0.01122               Mean   :0.03542    
+ 3rd Qu.:1     3rd Qu.:0.0000      3rd Qu.:0.000000            3rd Qu.:0.00000               3rd Qu.:0.00000    
+ Max.   :1     Max.   :1.0000      Max.   :1.000000            Max.   :1.00000               Max.   :1.00000    
+ dat_use1.RACEAOther dat_use1.RACEArefused dat_use1.RACEAnot.ascertained dat_use1.RACEAunknown
+ Min.   :0.00000     Min.   :0.0000000     Min.   :0.0000                Min.   :0.0000000    
+ 1st Qu.:0.00000     1st Qu.:0.0000000     1st Qu.:0.0000                1st Qu.:0.0000000    
+ Median :0.00000     Median :0.0000000     Median :0.0000                Median :0.0000000    
+ Mean   :0.01268     Mean   :0.0006188     Mean   :0.0372                Mean   :0.0004641    
+ 3rd Qu.:0.00000     3rd Qu.:0.0000000     3rd Qu.:0.0000                3rd Qu.:0.0000000    
+ Max.   :1.00000     Max.   :1.0000000     Max.   :1.0000                Max.   :1.0000000    
+> summary(d_sex)
+  X.Intercept. dat_use1.SEXFemale dat_use1.SEXRefused dat_use1.SEXdont.know
+ Min.   :1     Min.   :0.0000     Min.   :0.0000000   Min.   :0            
+ 1st Qu.:1     1st Qu.:0.0000     1st Qu.:0.0000000   1st Qu.:0            
+ Median :1     Median :1.0000     Median :0.0000000   Median :0            
+ Mean   :1     Mean   :0.5437     Mean   :0.0001547   Mean   :0            
+ 3rd Qu.:1     3rd Qu.:1.0000     3rd Qu.:0.0000000   3rd Qu.:0            
+ Max.   :1     Max.   :1.0000     Max.   :1.0000000   Max.   :0            
+> dat_for_analysis_sub <- data.frame(
++   d_INSURANCE[,2],
++   d_sex[!is.na(dat_use1$YES_HEALTH_INSURANCE),2:3]) 
+> summary(dat_for_analysis_sub)
+ d_INSURANCE...2. dat_use1.SEXFemale dat_use1.SEXRefused
+ Min.   :0.0000   Min.   :0.0000     Min.   :0.0000000  
+ 1st Qu.:1.0000   1st Qu.:0.0000     1st Qu.:0.0000000  
+ Median :1.0000   Median :1.0000     Median :0.0000000  
+ Mean   :0.8939   Mean   :0.5437     Mean   :0.0001547  
+ 3rd Qu.:1.0000   3rd Qu.:1.0000     3rd Qu.:0.0000000  
+ Max.   :1.0000   Max.   :1.0000     Max.   :1.0000000  
+> names(dat_for_analysis_sub) <- sub("dat_use1.","",names(dat_for_analysis_sub))
+> names(dat_for_analysis_sub) <- sub("...2.","",names(dat_for_analysis_sub))
+> summary(dat_for_analysis_sub)
+  d_INSURANCE       SEXFemale        SEXRefused       
+ Min.   :0.0000   Min.   :0.0000   Min.   :0.0000000  
+ 1st Qu.:1.0000   1st Qu.:0.0000   1st Qu.:0.0000000  
+ Median :1.0000   Median :1.0000   Median :0.0000000  
+ Mean   :0.8939   Mean   :0.5437   Mean   :0.0001547  
+ 3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:0.0000000  
+ Max.   :1.0000   Max.   :1.0000   Max.   :1.0000000  
+> require("standardize")
+> set.seed(1)
+> NN <- length(dat_for_analysis_sub$d_INSURANCE)
+> summary(NN)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  12929   12929   12929   12929   12929   12929 
+> restrict_1 <- (runif(NN) < 0.1) 
+> summary(restrict_1)
+   Mode   FALSE    TRUE 
+logical   11609    1320 
+> dat_train <- subset(dat_for_analysis_sub, restrict_1)
+> dat_test <- subset(dat_for_analysis_sub, !restrict_1)
+> summary(dat_train)
+  d_INSURANCE       SEXFemale        SEXRefused
+ Min.   :0.0000   Min.   :0.0000   Min.   :0   
+ 1st Qu.:1.0000   1st Qu.:0.0000   1st Qu.:0   
+ Median :1.0000   Median :1.0000   Median :0   
+ Mean   :0.8894   Mean   :0.5591   Mean   :0   
+ 3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:0   
+ Max.   :1.0000   Max.   :1.0000   Max.   :0   
+> sobj <- standardize(d_INSURANCE ~  SEXFemale 
++                     , dat_train, family = binomial)
+> s_dat_test <- predict(sobj, dat_test)
+> #Linear
+> model_lpm1 <- lm(sobj$formula, data = sobj$data)
+> summary(model_lpm1)
+
+Call:
+lm(formula = sobj$formula, data = sobj$data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.8935  0.1065  0.1065  0.1138  0.1138 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  0.889825   0.008700 102.282   <2e-16 ***
+SEXFemale1  -0.003646   0.008700  -0.419    0.675    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3139 on 1318 degrees of freedom
+Multiple R-squared:  0.0001332,	Adjusted R-squared:  -0.0006254 
+F-statistic: 0.1756 on 1 and 1318 DF,  p-value: 0.6752
+
+> pred_vals_lpm <- predict(model_lpm1, s_dat_test)
+> pred_model_lpm1 <- (pred_vals_lpm > mean(pred_vals_lpm))
+> table(pred = pred_model_lpm1, true = dat_test$d_INSURANCE)
+       true
+pred       0    1
+  FALSE  630 5662
+  TRUE   596 4721
+> # here we have the confusion matrix for the logit regression
+> # we see the type I errors are 5662, while the type II errors are
+> #596. 
+> # logit 
+> model_logit1 <- glm(sobj$formula, family = binomial, data = sobj$data)
+> summary(model_logit1)
+
+Call:
+glm(formula = sobj$formula, family = binomial, data = sobj$data)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.1163   0.4746   0.4746   0.4916   0.4916  
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  2.08949    0.08872  23.552   <2e-16 ***
+SEXFemale1  -0.03720    0.08872  -0.419    0.675    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 918.14  on 1319  degrees of freedom
+Residual deviance: 917.96  on 1318  degrees of freedom
+AIC: 921.96
+
+Number of Fisher Scoring iterations: 4
+
+> pred_vals <- predict(model_logit1, s_dat_test, type = "response")
+> pred_model_logit1 <- (pred_vals > 0.5)
+> table(pred = pred_model_logit1, true = dat_test$d_INSURANCE)
+      true
+pred       0     1
+  TRUE  1226 10383
+  
+  > require('randomForest')
+> set.seed(1)
+> model_randFor <- randomForest(as.factor(d_INSURANCE) ~ ., data = sobj$data, importance=TRUE, proximity=TRUE)
+> print(model_randFor)
+
+Call:
+ randomForest(formula = as.factor(d_INSURANCE) ~ ., data = sobj$data,      importance = TRUE, proximity = TRUE) 
+               Type of random forest: classification
+                     Number of trees: 500
+No. of variables tried at each split: 1
+
+        OOB estimate of  error rate: 11.06%
+Confusion matrix:
+  0    1 class.error
+0 0  146           1
+1 0 1174           0
+> round(importance(model_randFor),2)
+          0 1 MeanDecreaseAccuracy MeanDecreaseGini
+SEXFemale 0 0                    0             0.23
+> varImpPlot(model_randFor)
+Error in if (nmeas > 1) { : argument is of length zero
+> # look at confusion matrix for this too
+> pred_model1 <- predict(model_randFor,  s_dat_test)
+> table(pred = pred_model1, true = dat_test$d_INSURANCE)
+    true
+pred     0     1
+   0     0     0
+   1  1226 10383
+> require(spikeslab)
+> set.seed(1)
+> model1_spikeslab <- spikeslab(sobj$formula, data = sobj$data)
+> summary(model1_spikeslab)
+              Length Class      Mode     
+summary          4   data.frame list     
+verbose         10   -none-     list     
+terms            3   terms      call     
+sigma.hat        1   -none-     numeric  
+y             1320   -none-     numeric  
+xnew          2640   -none-     numeric  
+x             2640   -none-     numeric  
+y.center         1   -none-     numeric  
+x.center         2   -none-     numeric  
+x.scale          2   -none-     numeric  
+names            2   -none-     character
+bma              2   -none-     numeric  
+bma.scale        2   -none-     numeric  
+gnet             2   -none-     numeric  
+gnet.scale       2   -none-     numeric  
+gnet.path        2   -none-     list     
+gnet.obj        16   lars       list     
+gnet.obj.vars    2   -none-     numeric  
+gnet.parms       2   -none-     numeric  
+phat             1   -none-     numeric  
+complexity     500   -none-     numeric  
+ridge          500   -none-     list     
+model          500   -none-     list     
+> print(model1_spikeslab)
+------------------------------------------------------------------- 
+Variable selection method     : AIC 
+Big p small n                 : FALSE 
+Screen variables              : FALSE 
+Fast processing               : TRUE 
+Sample size                   : 1320 
+No. predictors                : 2 
+No. burn-in values            : 500 
+No. sampled values            : 500 
+Estimated mse                 : 0.0985 
+Model size                    : 0 
+
+
+---> Top variables:
+[1] bma        gnet       bma.scale  gnet.scale
+<0 rows> (or 0-length row.names)
+------------------------------------------------------------------- 
+> plot(model1_spikeslab)
+> require(e1071)
+> # tuned_parameters <- tune.svm(as.factor(vaxx) ~ ., data = sobj$data, gamma = 10^(-3:0), cost = 10^(-2:2)) 
+> # summary(tuned_parameters)
+> # figure best parameters and input into next
+> svm.model <- svm(as.factor(d_INSURANCE) ~ ., data = sobj$data, cost = 1, gamma = 0.1)
+> svm.pred <- predict(svm.model, s_dat_test)
+> table(pred = svm.pred, true = dat_test$d_INSURANCE)
+    true
+pred     0     1
+   0     0     0
+   1  1226 10383
+> 
+> # we obtain the confusion matrix with the e1071, where we find that there are
+> 
+> # All of the work on this exam is my own, answered honestly as rules state.
+> # All of the work on this exam is my own, answered honestly as rules state.
+> # Name: Nicholas Alonso
+
+
+
+
+
+
+
